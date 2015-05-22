@@ -509,6 +509,18 @@ function xmldb_questionnaire_upgrade($oldversion=0) {
          upgrade_mod_savepoint(true, 2014010300, 'questionnaire');
     }
 
+    if ($oldversion < 2014070404) {
+        // Changing type of field username on table questionnaire_response to int.
+        $table = new xmldb_table('questionnaire_response');
+        $field = new xmldb_field('username', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'grade');
+
+        // Launch change of type for field username.
+        $dbman->change_field_type($table, $field);
+
+        // Questionnaire savepoint reached.
+        upgrade_mod_savepoint(true, 2014070404, 'questionnaire');
+    }
+
     return $result;
 }
 
