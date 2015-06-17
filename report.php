@@ -491,10 +491,18 @@ switch ($action) {
         // SEP. 2007 JR changed file extension to *.txt for non-English Excel users' sake
         // and changed separator to tabulation
         // JAN. 2008 added \r carriage return for better Windows implementation.
-        header("Content-Disposition: attachment; filename=$name.txt");
+        // Dec 2014 TJB: changed back to comma-delimited .csv file for LU.
+        header("Content-Disposition: attachment; filename=$name.csv");
         header("Content-Type: text/comma-separated-values");
-        foreach ($output as $row) {
-            $text = implode("\t", $row);
+        foreach ($output as $rindex => $row) {
+            // Double-quote any content containing commas or spaces (and escape any existing double quotes).
+            foreach ($row as $cindex => $content) {
+                if (strpos($content, ',') !== false || strpos($content, ' ') !== false || strpos($content, '"') !== false) {
+                    $content = '"' . str_replace('"', '""', $content) . '"';
+                }
+                $row[$cindex] = $content;
+            }
+            $text = implode(',', $row);
             echo $text."\r\n";
         }
         exit();
@@ -545,12 +553,12 @@ switch ($action) {
                 $escapedgroupname = preg_quote($thisgroupname, '/');
                 if (!empty ($respscount)) {
                     // Add number of responses to name of group in the groups select list.
-                    $groupselect = preg_replace('/\<option value="'.$group->id.'">'.$escapedgroupname.'<\/option>/',
+                    $groupselect = preg_replace('|\<option value="'.$group->id.'">'.$escapedgroupname.'<\/option>|',
                         '<option value="'.$group->id.'">'.$thisgroupname.' ('.$respscount.')</option>', $groupselect);
                 } else {
                     // Remove groups with no responses from the groups select list.
-                    $groupselect = preg_replace('/\<option value="'.$group->id.'">'.$escapedgroupname.
-                            '<\/option>/', '', $groupselect);
+                    $groupselect = preg_replace('|\<option value="'.$group->id.'">'.$escapedgroupname.
+                            '<\/option>|', '', $groupselect);
                 }
             }
             $respinfo .= isset($groupselect) ? ($groupselect . ' ') : '';
