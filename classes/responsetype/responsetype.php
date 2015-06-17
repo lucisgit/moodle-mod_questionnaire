@@ -294,7 +294,7 @@ abstract class responsetype {
         } else {
             $userfieldsarr = get_all_user_name_fields();
         }
-        $userfieldsarr = array_merge($userfieldsarr, ['username', 'department', 'institution']);
+        $userfieldsarr = array_merge($userfieldsarr, ['username', 'department', 'institution', 'idnumber', 'email']);
         $userfields = '';
         foreach ($userfieldsarr as $field) {
             $userfields .= $userfields === '' ? '' : ', ';
