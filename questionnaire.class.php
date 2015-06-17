@@ -2624,7 +2624,7 @@ class questionnaire {
      */
     protected function user_fields() {
         $userfieldsarr = get_all_user_name_fields();
-        $userfieldsarr = array_merge($userfieldsarr, ['username', 'department', 'institution']);
+        $userfieldsarr = array_merge($userfieldsarr, ['username', 'department', 'institution', 'idnumber', 'email']);
         return $userfieldsarr;
     }
 
@@ -2731,19 +2731,23 @@ class questionnaire {
                         }
                         $groupname = substr($groupname, 0, strlen($groupname) - 2);
                     } else {
-                        $groupname = ' ('.get_string('groupnonmembers').')';
+                        $groupname = '('.get_string('groupnonmembers').')';
                     }
                 }
             }
         }
 
         if ($isanonymous) {
-            $fullname = get_string('anonymous', 'questionnaire');
+            $idnumber = get_string('anonymous', 'questionnaire');
+            $lastname = '';
+            $firstname = '';
+            $email = '';
             $username = '';
-            $uid = '';
         } else {
-            $uid = $user->id;
-            $fullname = fullname($user);
+            $idnumber = $user->idnumber;
+            $lastname = $user->lastname;
+            $firstname = $user->firstname;
+            $email = $user->email;
             $username = $user->username;
         }
 
@@ -2768,10 +2772,16 @@ class questionnaire {
             array_push($positioned, $groupname);
         }
         if (in_array('id', $options)) {
-            array_push($positioned, $uid);
+            array_push($positioned, $idnumber);
         }
-        if (in_array('fullname', $options)) {
-            array_push($positioned, $fullname);
+        if (in_array('lastname', $options)) {
+            array_push($positioned, $lastname);
+        }
+        if (in_array('firstname', $options)) {
+            array_push($positioned, $firstname);
+        }
+        if (in_array('email', $options)) {
+            array_push($positioned, $email);
         }
         if (in_array('username', $options)) {
             array_push($positioned, $username);
@@ -2813,7 +2823,11 @@ class questionnaire {
         foreach ($options as $option) {
             if (in_array($option, array('response', 'submitted', 'id'))) {
                 $columns[] = get_string($option, 'questionnaire');
-                $types[] = 0;
+                if ($option == 'id') {
+                    $types[] = 1;
+                } else {
+                    $types[] = 0;
+                }
             } else {
                 $columns[] = get_string($option);
                 $types[] = 1;
