@@ -561,12 +561,12 @@ switch ($action) {
                 $escapedgroupname = preg_quote($thisgroupname, '/');
                 if (!empty ($respscount)) {
                     // Add number of responses to name of group in the groups select list.
-                    $groupselect = preg_replace('/\<option value="'.$group->id.'">'.$escapedgroupname.'<\/option>/',
+                    $groupselect = preg_replace('|\<option value="'.$group->id.'">'.$escapedgroupname.'<\/option>|',
                         '<option value="'.$group->id.'">'.$thisgroupname.' ('.$respscount.')</option>', $groupselect);
                 } else {
                     // Remove groups with no responses from the groups select list.
-                    $groupselect = preg_replace('/\<option value="'.$group->id.'">'.$escapedgroupname.
-                        '<\/option>/', '', $groupselect);
+                    $groupselect = preg_replace('|\<option value="'.$group->id.'">'.$escapedgroupname.
+                        '<\/option>|', '', $groupselect);
                 }
             }
             $respinfo .= isset($groupselect) ? ($groupselect . ' ') : '';
