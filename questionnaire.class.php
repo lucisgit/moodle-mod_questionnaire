@@ -2566,7 +2566,11 @@ class questionnaire {
         foreach ($options as $option) {
             if (in_array($option, array('response', 'submitted', 'id'))) {
                 $columns[] = get_string($option, 'questionnaire');
-                $types[] = 0;
+                if ($option == 'id') {
+                    $types[] = 1;
+                } else {
+                    $types[] = 0;
+                }
             } else {
                 $columns[] = get_string($option);
                 $types[] = 1;
@@ -2755,11 +2759,9 @@ class questionnaire {
             $qid = $record->id;
             // For better compabitility & readability with Excel.
             $submitted = date(get_string('strfdateformatcsv', 'questionnaire'), $record->submitted);
-            $institution = '';
             $department = '';
             $username  = $record->username;
             if ($user = $DB->get_record('user', array('id' => $username))) {
-                $institution = $user->institution;
                 $department = $user->department;
             }
 
@@ -2786,7 +2788,10 @@ class questionnaire {
             if (is_numeric($username)) {
                 if ($user = $DB->get_record('user', array('id' => $username))) {
                     $uid = $username;
-                    $fullname = fullname($user);
+                    $idnumber = $user->idnumber;
+                    $lastname = $user->lastname;
+                    $firstname = $user->firstname;
+                    $email = $user->email;
                     $username = $user->username;
                 }
             }
@@ -2805,25 +2810,28 @@ class questionnaire {
                             }
                             $groupname = substr($groupname, 0, strlen($groupname) - 2);
                         } else {
-                            $groupname = ' ('.get_string('groupnonmembers').')';
+                            $groupname = '('.get_string('groupnonmembers').')';
                         }
                     }
                 }
             }
             if ($isanonymous) {
-                $fullname = get_string('anonymous', 'questionnaire');
+                $idnumber = get_string('anonymous', 'questionnaire');
+                $lastname = '';
+                $firstname = '';
+                $email = '';
                 $username = '';
-                $uid = '';
             }
             $arr = array(); // fill $arr only with fields selected in the mod settings
             if (in_array('response', $options)) array_push($arr, $qid);
             if (in_array('submitted', $options)) array_push($arr, $submitted);
-            if (in_array('institution', $options)) array_push($arr, $institution);
-            if (in_array('department', $options)) array_push($arr, $department);
-            if (in_array('course', $options)) array_push($arr, $coursename);
-            if (in_array('group', $options)) array_push($arr, $groupname);
-            if (in_array('id', $options)) array_push($arr, $uid);
-            if (in_array('fullname', $options)) array_push($arr, $fullname);
+            if (in_array('department', $options)) array_push($arr, '"' . $department . '"');
+            if (in_array('course', $options)) array_push($arr, '"' . $coursename . '"');
+            if (in_array('group', $options)) array_push($arr, '"' . $groupname . '"');
+            if (in_array('id', $options)) array_push($arr, '"' . $idnumber . '"');
+            if (in_array('lastname', $options)) array_push($arr, $lastname);
+            if (in_array('firstname', $options)) array_push($arr, $firstname);
+            if (in_array('email', $options)) array_push($arr, $email);
             if (in_array('username', $options)) array_push($arr, $username);
 
             // Merge it.
@@ -2856,7 +2864,8 @@ class questionnaire {
 
                     break;
                 }
-                array_push($arr, $thisresponse);
+                // Wrap the whole thing in quotation marks so commas aren't parsed as delimiters.
+                array_push($arr, '"' . $thisresponse . '"');
             }
             array_push($output, $arr);
         }

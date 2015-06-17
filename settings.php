@@ -33,12 +33,13 @@ if ($ADMIN->fulltree) {
     $choices = array(
         'response' => get_string('response', 'questionnaire'),
         'submitted' => get_string('submitted', 'questionnaire'),
-        'institution' => get_string('institution'),
         'department' => get_string('department'),
         'course' => get_string('course'),
         'group' => get_string('group'),
         'id' => get_string('id', 'questionnaire'),
-        'fullname' => get_string('fullname'),
+        'lastname' => get_string('lastname'),
+        'firstname' => get_string('firstname'),
+        'email' => get_string('email'),
         'username' => get_string('username')
     );
 
