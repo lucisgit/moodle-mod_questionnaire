@@ -535,6 +535,16 @@ switch ($action) {
             // Dec 2014 TJB: changed back to comma-delimited .csv file for LU.
             header("Content-Disposition: attachment; filename=$name.csv");
             header("Content-Type: text/comma-separated-values");
+        // Quote any column headers containing a comma.
+        foreach ($output[0] as $header) {
+            if (strpos($header, ',') !== false) {
+                $header = '"' . $header . '"';
+            }
+            $headers[] = $header;
+        }
+        echo implode(',', $headers) . "\r\n";
+        unset($output[0]);
+        // Now deal with the data rows.
         foreach ($output as $row) {
             $text = implode(',', $row);
             echo $text."\r\n";
