@@ -816,6 +816,15 @@ class questionnaire {
         if ($userid) {
             $sql .= ' AND r.userid = :userid';
             $params['userid'] = $userid;
+        } else if (!empty($this->excludeinactive)) {
+            if ($users = get_enrolled_users($this->context, 'mod/questionnaire:submit', $groupid, 'u.id', null, 0, 0, true)) {
+                $userids = array_map(function($u) {
+                    return $u->id;
+                }, $users);
+                list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                $sql .= " AND r.userid $usersql";
+                $params = array_merge($params, $userparams);
+            }
         }
         return $DB->count_records_sql($sql, $params);
     }
@@ -861,6 +870,15 @@ class questionnaire {
         if ($userid) {
             $sql .= ' AND r.userid = :userid';
             $params['userid'] = $userid;
+        } else if (!empty($this->excludeinactive)) {
+            if ($users = get_enrolled_users($this->context, 'mod/questionnaire:submit', $groupid, 'u.id', null, 0, 0, true)) {
+                $userids = array_map(function($u) {
+                    return $u->id;
+                }, $users);
+                list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                $sql .= " AND r.userid $usersql";
+                $params = array_merge($params, $userparams);
+            }
         }
 
         $sql .= ' ORDER BY r.id';
@@ -3030,7 +3048,8 @@ class questionnaire {
                 continue;
             }
             $allresponsessql .= $allresponsessql == '' ? '' : ' UNION ALL ';
-            list ($sql, $params) = $question->responsetype->get_bulk_sql($qids, $rid, $userid, $groupid, $showincompletes);
+            list ($sql, $params) = $question->responsetype->get_bulk_sql($qids, $rid, $userid, $groupid, $showincompletes,
+                    !empty($this->excludeinactive), $this->context);
             $allresponsesparams = array_merge($allresponsesparams, $params);
             $allresponsessql .= $sql;
         }
